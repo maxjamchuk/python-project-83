@@ -1,16 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Main — Page Analyzer{% endblock %}
+{% block title %}Анализатор страниц{% endblock %}
 
 {% block content %}
   <div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
     <div class="container-fluid py-5">
-      <h1 class="display-5 fw-bold mb-3">Page Analyzer</h1>
+      <h1 class="display-5 fw-bold mb-3">Анализатор страниц</h1>
       <p class="fs-5">
-        Check your website for SEO-friendly tags (title, h1, description).
+        Сервис для анализа сайтов на SEO-пригодность.
       </p>
-      <hr>
-      <p class="text-muted">В следующих шагах появится форма для ввода URL.</p>
+
+      <form action="{{ url_for('urls_create') }}" method="post" class="row g-3">
+        <div class="col-md-9">
+          <label class="form-label" for="url-input">URL</label>
+          <input
+            id="url-input"
+            type="text"
+            name="url"
+            class="form-control {% if errors and errors.url %}is-invalid{% endif %}"
+            placeholder="https://example.com"
+            value="{{ url_value or '' }}"
+          >
+          {% if errors and errors.url %}
+            <div class="invalid-feedback">
+              {{ errors.url }}
+            </div>
+          {% endif %}
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">
+            Проверить
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 {% endblock %}

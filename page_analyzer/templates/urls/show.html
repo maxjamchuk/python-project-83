@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ url.name }} — Page Analyzer{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Сайт {{ url.name }}</h1>
+
+  <table class="table table-bordered" data-test="url">
+    <tbody>
+      <tr>
+        <th scope="row">ID</th>
+        <td>{{ url.id }}</td>
+      </tr>
+      <tr>
+        <th scope="row">Имя</th>
+        <td>{{ url.name }}</td>
+      </tr>
+      <tr>
+        <th scope="row">Дата добавления</th>
+        <td>{{ url.created_at }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="{{ url_for('urls_index') }}" class="btn btn-secondary">
+    К списку сайтов
+  </a>
+{% endblock %}
