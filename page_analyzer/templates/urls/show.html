@@ -34,28 +34,29 @@
 
   <h2 class="h4 mb-3">Проверки</h2>
 
-  <table class="table table-striped" data-test="checks">
+    <table class="table table-striped" data-test="checks">
     <thead>
-      <tr>
+        <tr>
         <th>ID</th>
         <th>Код ответа</th>
         <th>h1</th>
         <th>title</th>
         <th>description</th>
         <th>Дата проверки</th>
-      </tr>
+        </tr>
     </thead>
     <tbody>
-      {% for check in checks %}
+        {% for check in checks %}
         <tr>
-          <td>{{ check.id }}</td>
-          <td>{{ check.status_code or '' }}</td>
-          <td>{{ check.h1 or '' }}</td>
-          <td>{{ check.title or '' }}</td>
-          <td>{{ check.description or '' }}</td>
-          <td>{{ check.created_at }}</td>
+            <td>{{ check.id }}</td>
+            <td>{{ check.status_code or '' }}</td>
+            <td>{{ check.h1 or '' }}</td>
+            <td>{{ check.title or '' }}</td>
+            <td>{{ check.description or '' }}</td>
+            <td>{{ check.created_at }}</td>
         </tr>
-      {% endfor %}
+        {% endfor %}
     </tbody>
-  </table>
+    </table>
+
 {% endblock %}

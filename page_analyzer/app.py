@@ -1,4 +1,6 @@
 import os
+import requests
+
 from urllib.parse import urlparse
 
 from flask import (
@@ -81,12 +83,25 @@ def urls_show(id: int):
 
 
 
-@app.post("/urls/<int:id>/checks")
+@app.post("/urls/<int:id>")
 def url_checks_create(id: int):
     url = db.get_url(id)
     if url is None:
         abort(404)
 
-    db.create_check(id)
+    try:
+        response = requests.get(url["name"], timeout=10)
+        status_code = response.status_code
+        # Если код 4xx/5xx — raise_for_status выбросит ошибку
+        response.raise_for_status()
+    except requests.RequestException:
+        flash("Произошла ошибка при проверке", "danger")
+        return redirect(url_for("urls_show", id=id))
+
+    db.create_check(
+        url_id=id,
+        status_code=status_code,
+    )
     flash("Страница успешно проверена", "success")
     return redirect(url_for("urls_show", id=id))
+
