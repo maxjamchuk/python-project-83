@@ -32,29 +32,12 @@ def index():
 @app.post("/urls")
 def urls_create():
     url_raw = request.form.get("url", "").strip()
-    errors: dict[str, str] = {}
 
-    if not url_raw:
-        errors["url"] = "URL обязателен"
-    elif len(url_raw) > 255:
-        errors["url"] = "URL не должен превышать 255 символов"
-    elif not validators.url(url_raw):
-        errors["url"] = "Некорректный URL"
-
-    if errors:
-        return (
-            render_template("index.html", errors=errors, url_value=url_raw),
-            422,
-        )
+    if not url_raw or len(url_raw) > 255 or not validators.url(url_raw):
+        flash("Некорректный URL", "danger")
+        return render_template("index.html"), 422
 
     parsed = urlparse(url_raw)
-    if not parsed.scheme or not parsed.netloc:
-        errors["url"] = "Некорректный URL"
-        return (
-            render_template("index.html", errors=errors, url_value=url_raw),
-            422,
-        )
-
     normalized_url = f"{parsed.scheme}://{parsed.netloc}"
 
     existing = db.find_url_by_name(normalized_url)

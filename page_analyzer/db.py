@@ -63,7 +63,6 @@ def get_urls():
             SELECT
                 urls.id,
                 urls.name,
-                urls.created_at,
                 (
                     SELECT created_at
                     FROM url_checks
@@ -80,9 +79,10 @@ def get_urls():
                 ) AS last_status_code
             FROM urls
             ORDER BY urls.id DESC
-            """,
+            """
         )
         return cur.fetchall()
+
 
 
 

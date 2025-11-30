@@ -10,7 +10,6 @@
         <tr>
         <th>ID</th>
         <th>Имя</th>
-        <th>Дата добавления</th>
         <th>Дата последней проверки</th>
         <th>Код ответа</th>
         </tr>
@@ -24,12 +23,12 @@
                 {{ url.name }}
             </a>
             </td>
-            <td>{{ url.created_at }}</td>
             <td>{{ url.last_check_at or '' }}</td>
             <td>{{ url.last_status_code or '' }}</td>
         </tr>
         {% endfor %}
     </tbody>
     </table>
+
 
 {% endblock %}
