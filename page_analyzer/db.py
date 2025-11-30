@@ -84,8 +84,6 @@ def get_urls():
         return cur.fetchall()
 
 
-
-
 def create_check(url_id: int, status_code: int | None = None,
                  h1: str | None = None,
                  title: str | None = None,
@@ -115,4 +113,3 @@ def get_checks_for_url(url_id: int):
             (url_id,),
         )
         return cur.fetchall()
-
