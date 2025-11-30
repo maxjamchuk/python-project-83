@@ -1,5 +1,6 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 
 from urllib.parse import urlparse
 
@@ -82,7 +83,6 @@ def urls_show(id: int):
     return render_template("urls/show.html", url=url, checks=checks)
 
 
-
 @app.post("/urls/<int:id>")
 def url_checks_create(id: int):
     url = db.get_url(id)
@@ -92,16 +92,42 @@ def url_checks_create(id: int):
     try:
         response = requests.get(url["name"], timeout=10)
         status_code = response.status_code
-        # Если код 4xx/5xx — raise_for_status выбросит ошибку
         response.raise_for_status()
     except requests.RequestException:
         flash("Произошла ошибка при проверке", "danger")
         return redirect(url_for("urls_show", id=id))
 
+    h1_text = None
+    title_text = None
+    description_text = None
+
+    try:
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        h1_tag = soup.find("h1")
+        if h1_tag and h1_tag.get_text(strip=True):
+            h1_text = h1_tag.get_text(strip=True)
+
+        title_tag = soup.find("title")
+        if title_tag and title_tag.get_text(strip=True):
+            title_text = title_tag.get_text(strip=True)
+
+        meta_desc = soup.find("meta", attrs={"name": "description"})
+        if meta_desc and meta_desc.get("content"):
+            description_text = meta_desc.get("content").strip()
+
+    except Exception:
+        pass
+
     db.create_check(
         url_id=id,
         status_code=status_code,
+        h1=h1_text,
+        title=title_text,
+        description=description_text,
     )
+
     flash("Страница успешно проверена", "success")
     return redirect(url_for("urls_show", id=id))
+
 
