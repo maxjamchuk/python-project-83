@@ -59,6 +59,41 @@ def get_url(id_: int):
 def get_urls():
     with get_cursor() as cur:
         cur.execute(
-            "SELECT id, name, created_at FROM urls ORDER BY id DESC",
+            """
+            SELECT
+                urls.id,
+                urls.name,
+                urls.created_at,
+                MAX(url_checks.created_at) AS last_check_at
+            FROM urls
+            LEFT JOIN url_checks
+                ON url_checks.url_id = urls.id
+            GROUP BY urls.id, urls.name, urls.created_at
+            ORDER BY urls.id DESC
+            """,
+        )
+        return cur.fetchall()
+
+
+def create_check(url_id: int) -> int:
+    with get_cursor(commit=True) as cur:
+        cur.execute(
+            "INSERT INTO url_checks (url_id) VALUES (%s) RETURNING id",
+            (url_id,),
+        )
+        row = cur.fetchone()
+    return row["id"]
+
+
+def get_checks_for_url(url_id: int):
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, status_code, h1, title, description, created_at
+            FROM url_checks
+            WHERE url_id = %s
+            ORDER BY id DESC
+            """,
+            (url_id,),
         )
         return cur.fetchall()

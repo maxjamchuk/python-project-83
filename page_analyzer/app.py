@@ -75,4 +75,18 @@ def urls_show(id: int):
     url = db.get_url(id)
     if url is None:
         abort(404)
-    return render_template("urls/show.html", url=url)
+
+    checks = db.get_checks_for_url(id)
+    return render_template("urls/show.html", url=url, checks=checks)
+
+
+
+@app.post("/urls/<int:id>/checks")
+def url_checks_create(id: int):
+    url = db.get_url(id)
+    if url is None:
+        abort(404)
+
+    db.create_check(id)
+    flash("Страница успешно проверена", "success")
+    return redirect(url_for("urls_show", id=id))
