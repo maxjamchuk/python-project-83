@@ -1,8 +1,5 @@
 import os
 import requests
-from bs4 import BeautifulSoup
-
-from urllib.parse import urlparse
 
 from flask import (
     Flask,
@@ -14,9 +11,10 @@ from flask import (
     abort,
 )
 from dotenv import load_dotenv
-import validators
 
 from page_analyzer import db
+from page_analyzer.url_utils import is_valid_url, normalize_url
+from page_analyzer.html_parser import extract_seo_data
 
 load_dotenv()
 
@@ -33,12 +31,11 @@ def index():
 def urls_create():
     url_raw = request.form.get("url", "").strip()
 
-    if not url_raw or len(url_raw) > 255 or not validators.url(url_raw):
+    if not is_valid_url(url_raw):
         flash("Некорректный URL", "danger")
         return render_template("index.html"), 422
 
-    parsed = urlparse(url_raw)
-    normalized_url = f"{parsed.scheme}://{parsed.netloc}"
+    normalized_url = normalize_url(url_raw)
 
     existing = db.find_url_by_name(normalized_url)
     if existing:
@@ -80,27 +77,7 @@ def url_checks_create(id: int):
         flash("Произошла ошибка при проверке", "danger")
         return redirect(url_for("urls_show", id=id))
 
-    h1_text = None
-    title_text = None
-    description_text = None
-
-    try:
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        h1_tag = soup.find("h1")
-        if h1_tag and h1_tag.get_text(strip=True):
-            h1_text = h1_tag.get_text(strip=True)
-
-        title_tag = soup.find("title")
-        if title_tag and title_tag.get_text(strip=True):
-            title_text = title_tag.get_text(strip=True)
-
-        meta_desc = soup.find("meta", attrs={"name": "description"})
-        if meta_desc and meta_desc.get("content"):
-            description_text = meta_desc.get("content").strip()
-
-    except Exception:
-        pass
+    h1_text, title_text, description_text = extract_seo_data(response.text)
 
     db.create_check(
         url_id=id,
@@ -112,5 +89,3 @@ def url_checks_create(id: int):
 
     flash("Страница успешно проверена", "success")
     return redirect(url_for("urls_show", id=id))
-
-
